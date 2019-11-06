@@ -1,6 +1,3 @@
-import json
-import re
-
 import click
 import urllib3
 import json
@@ -9,6 +6,7 @@ from .formatters import Formatter
 from .validators import Validators
 
 # https://raw.githubusercontent.com/openstreetmap/Nominatim/master/data/country_name.sql
+# https://nominatim.openstreetmap.org/search?country=bulgaria&format=geojson&polygon_geojson=1
 
 http = urllib3.PoolManager()
 
@@ -28,7 +26,6 @@ def cli(**kwargs):
         names['bg'] = json.load(f)
 
     # Compare with countries list from nominatim
-    temp = []
     with open("externals/nomatium/data/country_name.sql") as f:
         for line in f.readlines():
             if '"name"=>' not in line:
@@ -63,8 +60,8 @@ def cli(**kwargs):
                         data['name_bg'] = name.split('=>')[1].replace('"', '')
 
             countries[code] = data
-            print(countries)
-            break
+
+    print(countries)
 
 
 
