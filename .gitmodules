@@ -1,0 +1,6 @@
+[submodule "externals/country-list"]
+	path = externals/country-list
+	url = https://github.com/umpirsky/country-list
+[submodule "externals/nomatium"]
+	path = externals/nomatium
+	url = https://github.com/openstreetmap/Nominatim.git
