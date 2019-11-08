@@ -24,6 +24,8 @@ def cli(**kwargs):
     with open("externals/country-list/data/bg/country.json", 'r') as f:
         names['bg'] = json.load(f)
 
+    countries = {}
+
     # Compare with countries list from nominatim
     with open("externals/nomatium/data/country_name.sql") as f:
         for line in f.readlines():
@@ -34,12 +36,11 @@ def cli(**kwargs):
             code = line.split('\t')[0]
             line = line.split('\t')[1]
             try:
-                Validators.country_code(code)
-                Validators.country_exclude(code)
+                Validators.validate(code)
             except ValueError:
                 continue
 
-
+            # Create empty dictionary
             data = {}
 
             # Get english name
@@ -64,14 +65,13 @@ def cli(**kwargs):
                         data['name_bg'] = name.split('=>')[1].replace('"', '')
                 print("Missing country in country-list/bg: \'{}\'. Using: \'{}\'".format(code, data['name_en']))
 
-
             # Get geojson
             http = urllib3.PoolManager(headers={
                 'User-Agent': '	Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:70.0) Gecko/20100101 Firefox/70.0'
             })
             ret: urllib3.response.HTTPResponse = http.request(
                 'GET',
-                "https://nominatim.openstreetmap.org/search?country={}&format=geojson&polygon_geojson=0".format(
+                "https://nominatim.openstreetmap.org/search?country={}&format=geojson&polygon_geojson=1".format(
                     data['name_en'].replace(' ', '%20').replace('&', 'and').lower()
                 )
             )
@@ -85,13 +85,17 @@ def cli(**kwargs):
 
             if len(j['features']) > 1:
                 for feature in j['features']:
-                    name=feature['properties']['display_name'].lower()
+                    name = feature['properties']['display_name'].lower()
                     if name != data['name_en'].lower():
                         j['features'].remove(feature)
                         continue
 
             data['geojson'] = j
+            countries[code] = data
             time.sleep(1)
+
+    with open(kwargs['output'], 'w') as f:
+        json.dump(countries, f)
 
 
 
