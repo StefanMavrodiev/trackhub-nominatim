@@ -8,5 +8,5 @@ setup(
     license='MIT',
     author='stefan',
     author_email='stefan.mavrodiev@gmail.com',
-    description='Export countries from nominatim service'
+    description='Export countries from nominatim service', install_requires=['click', 'urllib3']
 )
